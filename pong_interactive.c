@@ -1,10 +1,11 @@
-
+#include <pthread.h>
 #include <stdio.h>
 #include <ncurses.h>
 
 const int ROW = 25;
 const int COL = 80;
 const int GAME_OVER_SCORE = 21;
+const int GAME_SPEED = 500;
 
 const char BALL =  '@';
 const char ROCKET = '|';
@@ -45,7 +46,7 @@ int main(){
     keypad(stdscr,true);
     raw();
     while (is_game_over(user_input, score_p1, score_p2) == 1) {
-            timeout(500);
+            timeout(GAME_SPEED);
             main_render(ball_x, ball_y, r1_y, r2_y, score_p1, score_p2);
             user_input = getch();
             r1_y = move_r1(user_input, r1_y, vector_ball_x);

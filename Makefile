@@ -1,5 +1,4 @@
-WWW=
-# -Wall -Werror -Wextra
+WWW=-Wall -Werror -Wextra
 CC=gcc
 
 pong: pong.c clean
@@ -10,5 +9,9 @@ pong_interactive: clean
 	$(CC) $(WWW) pong_interactive.c -o pong_interactive -lncurses
 	./pong_interactive
 
+pong_threads: clean
+	$(CC) $(WWW) pong_multi_threads.c -o pong_threads -lncurses
+	./pong_threads
+
 clean:
-	rm -rf *.o pong pong_interactive
+	rm -rf *.o *.out pong pong_interactive pong_threads
