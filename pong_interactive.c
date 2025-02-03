@@ -1,6 +1,8 @@
 #include <ncurses.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
 const int ROW = 25;
@@ -37,6 +39,9 @@ int reset_ball_vector_x(int vector, int coord);
 char is_game_over(char input, int score_p1, int score_p2);
 
 int main() {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  long last = tv.tv_sec * 1000 + tv.tv_usec / 1000;
   int score_p1 = 0, score_p2 = 0;
   int ball_x = COL / 2, ball_y = ROW / 2;
   int vector_ball_x = 1, vector_ball_y = -1;
@@ -48,27 +53,29 @@ int main() {
     timeout(GAME_SPEED);
     main_render(ball_x, ball_y, r1_y, r2_y, score_p1, score_p2);
     user_input = getch();
+    gettimeofday(&tv, NULL);
+    long current = tv.tv_sec * 1000 + tv.tv_usec / 1000;
     r1_y = move_r1(user_input, r1_y, vector_ball_x);
     r2_y = move_r2(user_input, r2_y, vector_ball_x);
-    vector_ball_y = change_vector_y(ball_y, vector_ball_y);
-    ball_y = move_ball_y(ball_y, vector_ball_y);
-    vector_ball_x = hit_p1(ball_x, ball_y, vector_ball_x, r1_y);
-    vector_ball_x = hit_p2(ball_x, ball_y, vector_ball_x, r2_y);
-    ball_x = move_ball_x(ball_x, vector_ball_x);
-    score_p1 = check_score_p1(score_p1, ball_x);
-    score_p2 = check_score_p2(score_p2, ball_x);
-    vector_ball_x = reset_ball_vector_x(vector_ball_x, ball_x);
-    ball_y = reset_ball_coord_y(ball_y, ball_x);
-    ball_x = reset_ball_coord_x(ball_x);
+    if ((current - last) >= GAME_SPEED) {
+      vector_ball_y = change_vector_y(ball_y, vector_ball_y);
+      ball_y = move_ball_y(ball_y, vector_ball_y);
+      vector_ball_x = hit_p1(ball_x, ball_y, vector_ball_x, r1_y);
+      vector_ball_x = hit_p2(ball_x, ball_y, vector_ball_x, r2_y);
+      ball_x = move_ball_x(ball_x, vector_ball_x);
+      score_p1 = check_score_p1(score_p1, ball_x);
+      score_p2 = check_score_p2(score_p2, ball_x);
+      vector_ball_x = reset_ball_vector_x(vector_ball_x, ball_x);
+      ball_y = reset_ball_coord_y(ball_y, ball_x);
+      ball_x = reset_ball_coord_x(ball_x);
+      last = current;
+    }
     erase();
   }
   show_final_score(score_p1, score_p2);
   endwin();
   return 0;
 }
-
-// положение мяча изменяется раз в 500мс но при срабатывании getch происходит
-// повторный расчет новых координат
 
 // gameplay
 int move_r1(char ch, int r1_y, int vector_ball_x) {
