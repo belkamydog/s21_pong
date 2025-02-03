@@ -2,8 +2,6 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
 
 const int ROW = 25;
 const int COL = 80;
